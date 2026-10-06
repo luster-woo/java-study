@@ -1,0 +1,375 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Java·Spring 2주 플랜</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: 한 줄 기둥(최대 760px). 주차 → 일차 → 영상 체크리스트. 출처는 칩 색으로 구분 */
+:root{
+  --bg:#f5f6f9; --surface:#ffffff; --fg:#1b2030; --muted:#5d6577; --line:#dde1ea;
+  --accent:#2f4fd1; --accent-soft:#e6ebff;
+  --maj:#2f4fd1; --maj-bg:#e6ebff;
+  --non:#9a5b00; --non-bg:#fdf0d9;
+  --ext:#0b7a6e; --ext-bg:#dcf3ef;
+  --paid:#a3324a; --paid-bg:#fbe4e9;
+  --done:#8a91a1;
+  --f-display:"IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --f-body:"IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12151d; --surface:#1a1e29; --fg:#e7eaf2; --muted:#9aa2b4; --line:#2b3140;
+  --accent:#8ea2ff; --accent-soft:#232c4f;
+  --maj:#9fb0ff; --maj-bg:#242d52; --non:#f2b65a; --non-bg:#3a2c14;
+  --ext:#5fd4c4; --ext-bg:#123532; --paid:#f28ea3; --paid-bg:#3d1c25; --done:#6b7284;
+  color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#12151d; --surface:#1a1e29; --fg:#e7eaf2; --muted:#9aa2b4; --line:#2b3140;
+  --accent:#8ea2ff; --accent-soft:#232c4f;
+  --maj:#9fb0ff; --maj-bg:#242d52; --non:#f2b65a; --non-bg:#3a2c14;
+  --ext:#5fd4c4; --ext-bg:#123532; --paid:#f28ea3; --paid-bg:#3d1c25; --done:#6b7284;
+  color-scheme:dark;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.6;padding-inline:16px;padding-block:28px 64px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:1.75rem;font-weight:700;letter-spacing:-.01em}
+h2{font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h3{font-size:1.08rem;font-weight:700}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+header{display:flex;flex-direction:column;gap:10px}
+header p{margin:0;color:var(--muted);max-width:62ch}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.chip{display:inline-block;font-style:normal;font-size:.72rem;font-weight:700;padding:1px 7px;border-radius:999px;white-space:nowrap;line-height:1.6}
+.chip.maj{color:var(--maj);background:var(--maj-bg)}
+.chip.non{color:var(--non);background:var(--non-bg)}
+.chip.ext{color:var(--ext);background:var(--ext-bg)}
+.chip.paid{color:var(--paid);background:var(--paid-bg)}
+.progress{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.progress .row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:.9rem}
+.bar{height:8px;background:var(--line);border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.note{font-size:.85rem;color:var(--muted);margin:0}
+.week{display:flex;flex-direction:column;gap:14px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.day-head{display:flex;align-items:baseline;gap:10px 14px;flex-wrap:wrap;padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+.day-head .d{font-family:var(--f-mono);font-weight:600;color:var(--accent);font-size:.9rem}
+.day-head h3{flex:1 1 220px;min-width:0}
+.day-head .meta{font-size:.82rem;color:var(--muted)}
+.day.complete .day-head .d::after{content:" ✓"}
+.group{padding:8px 16px 4px;font-size:.78rem;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+ul.items{list-style:none;margin:0;padding:0 8px 6px}
+li.item label{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:start;padding:7px 8px;border-radius:6px;cursor:pointer}
+li.item label:hover{background:var(--accent-soft)}
+li.item input{margin:3px 0 0;width:16px;height:16px;accent-color:var(--accent)}
+li.item .name{min-width:0;overflow-wrap:anywhere}
+li.item .len{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:.82rem;color:var(--muted);white-space:nowrap}
+li.item.checked .name,li.item.checked .name a{color:var(--done);text-decoration:line-through}
+li.item .sub{display:block;font-size:.8rem;color:var(--muted)}
+li.item.optional .name::before{content:"선택 · ";color:var(--muted);font-size:.8rem}
+.task{margin:4px 16px 14px;padding:10px 12px;border-radius:8px;background:var(--bg);font-size:.88rem;display:flex;gap:8px;flex-wrap:wrap}
+.task b{font-weight:700}
+.alt{margin:0 16px 14px;font-size:.84rem;color:var(--muted)}
+.foot{font-size:.82rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.toolbar{display:flex;justify-content:flex-end}
+button.reset{font:inherit;font-size:.82rem;color:var(--muted);background:none;border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer}
+button.reset.armed{color:var(--paid);border-color:var(--paid)}
+@media (prefers-reduced-motion: reduce){.bar i{transition:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Java·Spring 2주 플랜</h1>
+    <p>하루 6시간 기준. 영상은 1.5배속으로 보고 남는 시간은 코드 직접 치기와 실습에 씁니다. 다음 프로젝트는 JPA를 쓰므로 MyBatis는 트랜잭션 부분만 봅니다.</p>
+    <div class="legend">
+      <span><i class="chip maj">전공</i> SSAFY Java 전공반 다시보기</span>
+      <span><i class="chip non">비전공</i> SSAFY Java 비전공반 다시보기</span>
+      <span><i class="chip ext">무료</i> 외부 무료 자료</span>
+      <span><i class="chip paid">유료</i> 인프런 강의</span>
+    </div>
+    <p class="note">SSAFY 링크는 에듀싸피에 로그인한 상태에서 열립니다. 체크한 항목은 이 브라우저에만 저장됩니다.</p>
+  </header>
+
+  <section class="progress" aria-label="전체 진행률">
+    <div class="row"><b id="pTxt">0 / 0 완료</b><span class="mono" id="pTime"></span></div>
+    <div class="bar"><i id="pBar"></i></div>
+  </section>
+
+  <div id="plan"></div>
+
+  <div class="toolbar"><button type="button" class="reset" id="reset">체크 전부 지우기</button></div>
+
+  <footer class="foot">
+    <span>영상 길이는 2026-10-06 에듀싸피 다시보기 목록 기준. 인프런 섹션 길이는 강의 소개 페이지 기준.</span>
+    <span>JPA 강의: 김영한 「자바 ORM 표준 JPA 프로그래밍 - 기본편」 (유료, 전체 16시간). 이 플랜은 그중 약 8시간만 씁니다.</span>
+  </footer>
+</div>
+
+<script>
+const S='https://edu.ssafy.com/edu/board/free/detail.do?&';
+const MAJ='RE20251226123059', NON='RE20251226123151';
+const v=(rep,seq,brd)=>`${S}brdItmSeq=${seq}&lctCd=0210&lctrRepId=${rep}&lctrBrdSeq=${brd}`;
+const JPA='https://www.inflearn.com/course/ORM-JPA-Basic';
+
+// 항목: [이름, 길이(h:mm:ss 또는 '~20분'), 링크, 설명, 선택여부]
+const PLAN=[
+ {week:'1주차 · Java',days:[
+  {d:'D1',t:'기본 문법·배열',groups:[
+    ['non','[Java] 기본문법 & 제어문',[
+      ['Hello Java','0:28:31',v(NON,113894,20020)],
+      ['변수와 자료형','0:24:05',v(NON,113907,20004)],
+      ['연산자','0:17:07',v(NON,113895,20005)],
+      ['제어문','0:20:34',v(NON,113908,20021)]]],
+    ['maj','[Java] 기본 문법',[
+      ['배열','0:30:46',v(MAJ,113890,20015)],
+      ['다차원 배열','0:11:51',v(MAJ,113902,20000)]]]],
+   task:'백준 브론즈 10문제를 Java로. 입력은 BufferedReader로'},
+  {d:'D2',t:'클래스와 객체',groups:[
+    ['maj','[Java] 추상화',[
+      ['객체지향 프로그래밍','0:42:09',v(MAJ,113989,20056)],
+      ['변수','0:16:37',v(MAJ,113990,20046)],
+      ['메서드','0:34:23',v(MAJ,113991,20057)],
+      ['생성자','0:14:50',v(MAJ,113981,20047)]]],
+    ['non','[Java] 객체배열관리',[
+      ['JVM 메모리구조','0:21:16',v(NON,114173,20140)],
+      ['static 키워드','0:20:45',v(NON,114150,20124)]]]],
+   task:'Account 클래스 만들기 (입금·출금·잔액 조회)'},
+  {d:'D3',t:'상속·다형성',groups:[
+    ['maj','[Java] 상속',[
+      ['상속','0:39:58',v(MAJ,114038,20094)],
+      ['메서드 재정의','0:28:22',v(MAJ,114053,20078)],
+      ['package_import','0:12:53',v(MAJ,114039,20095)],
+      ['제한자','0:28:27',v(MAJ,114054,20096)]]],
+    ['maj','[Java] 다형성',[
+      ['encapsulation','0:26:34',v(MAJ,114115,20105)],
+      ['polymorphism','0:25:44',v(MAJ,114127,20091)],
+      ['객체의 형변환','0:46:54',v(MAJ,114128,20106)],
+      ['Object 메서드 재정의','0:11:59',v(MAJ,114116,20112)]]]],
+   task:'Animal → Dog·Cat 만들고 배열 하나에 담아 같은 메서드 호출'},
+  {d:'D4',t:'인터페이스·제네릭',groups:[
+    ['maj','[Java] 인터페이스',[
+      ['abstract class','0:29:49',v(MAJ,114138,20117)],
+      ['Interface','0:19:20',v(MAJ,114142,20110)],
+      ['Interface의 필요성','0:33:50',v(MAJ,114143,20111)],
+      ['default_static_private','0:18:51',v(MAJ,114139,20132)]]],
+    ['maj','[Java] 제너릭',[
+      ['generic','1:13:12',v(MAJ,114211,20131)],
+      ['enum','0:11:14',v(MAJ,114212,20149)],
+      ['annotation','0:20:25',v(MAJ,114200,20150)]]]],
+   task:'Repository<T> 인터페이스와 구현체 만들기 (Spring Repository의 원형)'},
+  {d:'D5',t:'컬렉션·람다·Stream + Wrapper·Optional',groups:[
+    ['maj','[Java] 컬렉션1',[
+      ['List 계열','0:43:47',v(MAJ,114336,20164)],
+      ['Set 계열','0:15:21',v(MAJ,114337,20179)],
+      ['Map 계열','0:11:42',v(MAJ,114354,20180)],
+      ['정렬','0:28:28',v(MAJ,114355,20165)]]],
+    ['maj','[Java] 컬렉션2',[
+      ['Lambda 표현식','0:35:37',v(MAJ,114377,20192)],
+      ['표준함수형 인터페이스','0:31:58',v(MAJ,114378,20187)],
+      ['Stream API','0:50:10',v(MAJ,114379,20193)]]],
+    ['ext','SSAFY에 없는 것 (읽기)',[
+      ['Wrapper 클래스·오토박싱 — TCP School','~20분','https://tcpschool.com/java/java_api_wrapper','int vs Integer, == vs equals'],
+      ['Optional 클래스 — TCP School','~20분','https://tcpschool.com/java/java_stream_optional','JPA findById()가 Optional을 돌려줍니다']]]],
+   task:'백준 실버 3문제(HashMap·정렬) → for문을 Stream으로 다시 쓰기'},
+  {d:'D6',t:'예외·입출력 + String·record',groups:[
+    ['maj','[Java] 예외',[
+      ['예외의 처리','0:39:30',v(MAJ,114462,20208)],
+      ['try_catch_finally','0:23:29',v(MAJ,114448,20209)],
+      ['throws 활용','0:32:33',v(MAJ,114463,20210)],
+      ['사용자 정의 예외','0:06:18',v(MAJ,114449,20211)],
+      ['APPENDIX_부적절한 예외 처리','0:06:29',v(MAJ,114450,20218)]]],
+    ['maj','[Java] 파일 입출력',[
+      ['노드스트림','0:24:22',v(MAJ,114496,20247)],
+      ['노드스트림 활용','0:32:55',v(MAJ,114497,20248)],
+      ['보조스트림','0:10:20',v(MAJ,114498,20228)],
+      ['보조스트림 활용','0:35:44',v(MAJ,114504,20249)]]],
+    ['maj','[Java] XML/Json',[
+      ['JSON','0:23:18',v(MAJ,114545,20259)]]],
+    ['ext','SSAFY에 없는 것 (읽기)',[
+      ['String 클래스 — TCP School','~15분','https://www.tcpschool.com/java/java_api_string','불변 객체, String Pool'],
+      ['03-05 StringBuffer — 점프 투 자바','~15분','https://wikidocs.net/276','StringBuilder와의 차이 포함'],
+      ['Record Classes — Oracle 공식 문서','~20분','https://docs.oracle.com/en/java/javase/17/language/records.html','DTO를 record로 만드는 이유']]]],
+   task:'Account에 잔액 부족 커스텀 예외 붙이기'}
+ ]},
+ {week:'2주차 · Spring + JPA',days:[
+  {d:'D7',t:'Spring 기초·DI',groups:[
+    ['maj','[Framework (Back)] Framework 소개',[
+      ['Framework','0:53:09',v(MAJ,119241,22087)],
+      ['SLF4j와 Logging','0:27:01',v(MAJ,119242,22088)],
+      ['Junit','0:36:02',v(MAJ,119243,22104)]]],
+    ['maj','[Framework (Back)] Spring Architecture, DI',[
+      ['의존성과 DI','0:43:06',v(MAJ,119268,22142)],
+      ['명시적 DI','0:28:28',v(MAJ,119292,22143)],
+      ['묵시적 DI','0:37:41',v(MAJ,119293,22144)]]],
+    ['non','[Framework(Back)] DI',[
+      ['Appendix_Lombok','0:26:06',v(NON,119258,22114)]]]],
+   task:'Spring Boot 프로젝트(Gradle) 생성, DI 예제 따라 치기. 영상이 길어 실습은 가볍게'},
+  {d:'D8',t:'Spring Boot·AOP',groups:[
+    ['maj','[Framework (Back)] SpringBoot',[
+      ['Spring Boot','0:41:16',v(MAJ,119343,22161)],
+      ['주요 Annotations','0:15:02',v(MAJ,119344,22138)],
+      ['Servlet Web To Spring Boot','0:45:44',v(MAJ,119345,22162)]]],
+    ['non','[Framework(Back)] AOP — Proxy 강의 때문에 비전공반',[
+      ['관점 지향 프로그래밍','0:22:47',v(NON,119327,22132)],
+      ['Proxy','0:43:24',v(NON,119328,22155),'@Transactional과 JPA 지연 로딩이 이 원리로 동작'],
+      ['Spring AOP','0:32:11',v(NON,119329,22133)]]]],
+   task:'Controller–Service–Repository 뼈대 만들기'},
+  {d:'D9',t:'Spring MVC',groups:[
+    ['maj','[Framework (Back)] MVC1',[
+      ['Spring 내부의 AOP들과 한계','0:31:02',v(MAJ,119491,22263)],
+      ['Spring MVC 개요','0:39:04',v(MAJ,119512,22264)],
+      ['Controller','0:31:52',v(MAJ,119513,22252)]]],
+    ['maj','[Framework (Back)] MVC2',[
+      ['Controller 단위테스트','0:47:01',v(MAJ,119565,22290)],
+      ['요청 처리 메서드의 파라미터','0:34:08',v(MAJ,119566,22304)],
+      ['예외 처리','0:20:23',v(MAJ,119567,22291)],
+      ['file upload','0:22:39',v(MAJ,119544,22305)]]]],
+   task:'Controller 테스트 1개 작성'},
+  {d:'D10',t:'REST·트랜잭션·JPA 시작',groups:[
+    ['maj','[Framework (Back)] Rest API',[
+      ['REST API','0:26:44',v(MAJ,119803,22429)],
+      ['REST 서비스 작성','0:41:35',v(MAJ,119804,22430)],
+      ['Swagger','0:11:38',v(MAJ,119805,22410)],
+      ['RestClient','0:24:04',v(MAJ,119807,22431),'Python AI 서버 호출에 바로 씁니다']]],
+    ['maj','[Framework (Back)] Mybatis 2 — 트랜잭션 부분만',[
+      ['Service Layer와 TX','0:22:23',v(MAJ,119744,22396)],
+      ['Transactional','0:35:28',v(MAJ,119745,22397)]]],
+    ['paid','JPA 기본편 (인프런)',[
+      ['섹션 2. JPA 소개','0:48:00',JPA],
+      ['섹션 3. JPA 시작하기','0:52:00',JPA]]]],
+   alt:[['2-03 JPA로 데이터베이스 사용하기','https://wikidocs.net/161164'],['2-04 엔티티로 테이블 매핑하기','https://wikidocs.net/161165']],
+   task:'Swagger로 내 API 문서 확인'},
+  {d:'D11',t:'JPA 핵심 — 영속성·매핑·연관관계',groups:[
+    ['paid','JPA 기본편 (인프런)',[
+      ['섹션 4. 영속성 관리 - 내부 동작 방식','0:55:00',JPA,'가장 중요합니다'],
+      ['섹션 5. 엔티티 매핑','1:49:00',JPA],
+      ['섹션 6. 연관관계 매핑 기초','1:38:00',JPA,'연관관계의 주인']]]],
+   alt:[['2-05 리포지터리로 데이터베이스 관리하기','https://wikidocs.net/160890'],['2-12 답변 기능 만들기','https://wikidocs.net/161396']],
+   task:'게시글–댓글 연관관계 매핑'},
+  {d:'D12',t:'JPA 실전 — 지연 로딩·N+1·Spring Data JPA',groups:[
+    ['paid','JPA 기본편 (인프런)',[
+      ['섹션 9. 프록시와 연관관계 관리','1:37:00',JPA,'지연 로딩'],
+      ['섹션 12. 객체지향 쿼리 언어2 - 중급 문법','1:48:00',JPA,'fetch join으로 N+1 해결'],
+      ['섹션 7. 다양한 연관관계 매핑','1:18:00',JPA,'1:1, N:M',true]]],
+    ['ext','Spring Data JPA',[
+      ['Accessing Data with JPA — Spring 공식 가이드','~15분','https://spring.io/guides/gs/accessing-data-jpa/','Repository 인터페이스만으로 CRUD']]]],
+   alt:[['JPA N+1 발생원인과 해결 방법 (Popit)','https://www.popit.kr/jpa-n1-%EB%B0%9C%EC%83%9D%EC%9B%90%EC%9D%B8%EA%B3%BC-%ED%95%B4%EA%B2%B0-%EB%B0%A9%EB%B2%95/']],
+   task:'게시판 CRUD API를 JPA로 완성'},
+  {d:'D13',t:'Spring Security·JWT',groups:[
+    ['maj','[Framework (Back)] Spring Security',[
+      ['Spring Security 개요','0:22:35',v(MAJ,119957,22440)],
+      ['SecurityFilterChain','0:09:55',v(MAJ,119958,22416)],
+      ['Authentication','0:08:21',v(MAJ,119959,22441)],
+      ['Authorization','0:02:43',v(MAJ,119960,22417)],
+      ['Authentication 실습','0:24:13',v(MAJ,119961,22442)],
+      ['Authorization 실습','0:27:53',v(MAJ,119962,22418)]]],
+    ['maj','[Framework 활용] JWT1',[
+      ['JWT 개요','0:22:50',v(MAJ,120703,22749)],
+      ['JWT 생성','0:21:05',v(MAJ,120704,22750)],
+      ['Spring Security와의 연동','1:03:43',v(MAJ,120705,22769)]]],
+    ['maj','[Framework 활용] JWT2',[
+      ['refresh token','0:52:20',v(MAJ,120738,22785)],
+      ['SPA의 인증 처리','0:45:57',v(MAJ,120739,22786)]]]],
+   task:'영상이 가장 긴 날. 실습은 강의 코드 따라 치기만'},
+  {d:'D14',t:'마무리 실습',groups:[
+    ['maj','[Framework 활용] Spring AI — AI를 Spring에서도 쓸 때만',[
+      ['Spring AI 기본 컨셉','0:26:18',v(MAJ,120762,22805),null,true],
+      ['Chat Client API','0:44:46',v(MAJ,120763,22793),null,true],
+      ['Multimodal','0:18:15',v(MAJ,120764,22806),null,true],
+      ['Multimodal (2)','0:07:58',v(MAJ,120765,22794),null,true],
+      ['Advisor API','0:25:46',v(MAJ,120749,22807),null,true]]],
+    ['maj','[Framework 활용] Spring AI 2',[
+      ['Embedding과 VectorStore','0:32:37',v(MAJ,120797,22826),null,true],
+      ['ConversationMemory','0:33:19',v(MAJ,120798,22827),null,true],
+      ['RAG_ETL Pipeline','0:18:58',v(MAJ,120799,22839),null,true],
+      ['RAG_Advisor','0:10:52',v(MAJ,120800,22828),null,true],
+      ['ChatBot','0:09:35',v(MAJ,120783,22840),null,true]]]],
+   task:'D12 API에 로그인 붙이기 + RestClient로 외부 API 호출 → GitHub에 올리기'}
+ ]},
+ {week:'선택 · 시간 남을 때',days:[
+  {d:'+',t:'복습·보충',groups:[
+    ['non','[Java] 실습 — Java 복습이 더 필요할 때',[
+      ['객체배열관리실습','1:46:02',v(NON,114230,20178),null,true],
+      ['종합실습','1:28:53',v(NON,114709,20360),null,true]]],
+    ['non','[Framework(Back)] Interceptor — JWT 필터가 헷갈릴 때',[
+      ['Filter','0:24:25',v(NON,119522,22257),null,true],
+      ['Filter 실습','0:23:18',v(NON,119535,22258),null,true],
+      ['Interceptor','0:43:00',v(NON,119523,22279),null,true],
+      ['Interceptor 실습','0:12:57',v(NON,119524,22280),null,true]]],
+    ['ext','멀티스레드 — 면접 단골',[
+      ['멀티 스레드 — TCP School','~20분','http://www.tcpschool.com/java/java_thread_multi',null,true],
+      ['07-05 스레드 — 점프 투 자바','~20분','https://wikidocs.net/230',null,true]]],
+    ['maj','[DB] Transaction · Index — 면접 대비',[
+      ['Java 전공 다시보기 목록에서 [DB] Transaction·Index','3:43:00','https://edu.ssafy.com/edu/lectureroom/lecturereplay/lectureReplayNView.do?lctCd=0210&lctrRepId=RE20251226123059',null,true]]]]}
+ ]}
+];
+
+const LABEL={maj:'전공',non:'비전공',ext:'무료',paid:'유료'};
+const toS=t=>{if(!/^\d+:\d+:\d+$/.test(t))return 0;const[h,m,s]=t.split(':').map(Number);return h*3600+m*60+s};
+const fmt=s=>{const m=Math.round(s/60);return `${Math.floor(m/60)}:${String(m%60).padStart(2,'0')}`};
+const short=t=>{if(!/^\d+:\d+:\d+$/.test(t))return t;const[h,m]=t.split(':').map(Number);return h?`${h}:${String(m).padStart(2,'0')}:00`.slice(0,4):`${m}분`};
+let store={};
+try{store=JSON.parse(localStorage.getItem('jsplan')||'{}')||{}}catch(e){store={}}
+const save=()=>{try{localStorage.setItem('jsplan',JSON.stringify(store))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+const root=document.getElementById('plan');
+const all={};
+PLAN.forEach(w=>{
+  const sec=document.createElement('section');sec.className='week';
+  sec.innerHTML=`<h2>${esc(w.week)}</h2>`;
+  w.days.forEach(day=>{
+    const el=document.createElement('article');el.className='day';el.id=day.d==='+'?'extra':day.d.toLowerCase();
+    let core=0,html='';const ids=[];
+    day.groups.forEach(([src,gname,items],gi)=>{
+      html+=`<div class="group"><i class="chip ${src}">${LABEL[src]}</i><span>${esc(gname)}</span></div><ul class="items">`;
+      items.forEach(([name,len,url,sub,opt],ii)=>{
+        const id=`${day.d}-${gi}-${ii}`;ids.push(id);
+        if(!opt)core+=toS(len);
+        all[id]={opt:!!opt,sec:toS(len)};
+        html+=`<li class="item${opt?' optional':''}" data-id="${id}"><label for="c-${id}"><input type="checkbox" id="c-${id}"><span class="name"><a href="${esc(url)}" target="_blank" rel="noopener">${esc(name)}</a>${sub?`<span class="sub">${esc(sub)}</span>`:''}</span><span class="len">${esc(short(len))}</span></label></li>`;
+      });
+      html+='</ul>';
+    });
+    if(day.alt)html+=`<p class="alt">유료 강의 대신 무료로: ${day.alt.map(([n,u])=>`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(n)}</a>`).join(' · ')}</p>`;
+    if(day.task)html+=`<div class="task"><b>실습</b><span>${esc(day.task)}</span></div>`;
+    const meta=day.d==='+'?'':(core?`영상 ${fmt(core)} · 1.5배속 ${fmt(core/1.5)}`:'강의 없음 · 실습의 날');
+    el.innerHTML=`<div class="day-head"><span class="d">${esc(day.d==='+'?'선택':day.d)}</span><h3>${esc(day.t)}</h3><span class="meta mono">${meta}</span></div>`+html;
+    el.dataset.ids=ids.join(',');
+    sec.appendChild(el);
+  });
+  root.appendChild(sec);
+});
+
+function refresh(){
+  const core=Object.keys(all).filter(id=>!all[id].opt);
+  const done=core.filter(id=>store[id]);
+  document.getElementById('pTxt').textContent=`필수 ${done.length} / ${core.length} 완료`;
+  const left=core.filter(id=>!store[id]).reduce((a,id)=>a+all[id].sec,0);
+  document.getElementById('pTime').textContent=`남은 영상 ${fmt(left)} (1.5배속 ${fmt(left/1.5)})`;
+  document.getElementById('pBar').style.width=(core.length?done.length/core.length*100:0)+'%';
+  document.querySelectorAll('.day').forEach(d=>{
+    const req=d.dataset.ids.split(',').filter(id=>id&&!all[id].opt);
+    d.classList.toggle('complete',req.length>0&&req.every(id=>store[id]));
+  });
+}
+document.querySelectorAll('li.item').forEach(li=>{
+  const id=li.dataset.id,cb=li.querySelector('input');
+  cb.checked=!!store[id];li.classList.toggle('checked',cb.checked);
+  cb.addEventListener('change',()=>{if(cb.checked)store[id]=1;else delete store[id];li.classList.toggle('checked',cb.checked);save();refresh();});
+});
+const rb=document.getElementById('reset');let armed=null;
+rb.addEventListener('click',()=>{
+  if(!armed){rb.classList.add('armed');rb.textContent='한 번 더 누르면 지워집니다';armed=setTimeout(()=>{armed=null;rb.classList.remove('armed');rb.textContent='체크 전부 지우기'},3000);return;}
+  clearTimeout(armed);armed=null;store={};save();
+  document.querySelectorAll('li.item').forEach(li=>{li.querySelector('input').checked=false;li.classList.remove('checked')});
+  rb.classList.remove('armed');rb.textContent='체크 전부 지우기';refresh();
+});
+refresh();
+</script>
+
+</body></html>
