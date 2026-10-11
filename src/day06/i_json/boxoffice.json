@@ -1,0 +1,13 @@
+{
+  "boxOfficeResult": {
+    "boxofficeType": "일별 박스오피스",
+    "showRange": "20210701~20210701",
+    "dailyBoxOfficeList": [
+      { "rnum": "1", "rank": "1", "movieCd": "20211581", "movieNm": "발신제한", "openDt": "2021-06-23", "salesAmt": "231480860", "audiAcc": "499902" },
+      { "rnum": "2", "rank": "2", "movieCd": "20211066", "movieNm": "크루엘라", "openDt": "2021-05-26", "salesAmt": "121546090", "audiAcc": "1554649" },
+      { "rnum": "3", "rank": "3", "movieCd": "20201264", "movieNm": "콰이어트 플레이스 2", "openDt": "2021-06-16", "salesAmt": "67412460", "audiAcc": "632197" },
+      { "rnum": "4", "rank": "4", "movieCd": "20210864", "movieNm": "루카", "openDt": "2021-06-17", "salesAmt": "35420380", "audiAcc": "336184" },
+      { "rnum": "5", "rank": "5", "movieCd": "20211260", "movieNm": "킬러의 보디가드 2", "openDt": "2021-06-16", "salesAmt": "32217500", "audiAcc": "306051" }
+    ]
+  }
+}
