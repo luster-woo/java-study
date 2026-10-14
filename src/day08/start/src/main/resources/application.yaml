@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: start
+
+manager:          # spring 아래가 아니라 맨 왼쪽부터!
+  id: hong
+  pass: 1234
+  age: 30
+  roles: admin, manager, guest
+
+logging:
+  level:
+    com.ssafy: DEBUG
