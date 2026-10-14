@@ -129,6 +129,91 @@ Client
 | finally "보람찬 하루를 마무리한다" | `@After` |
 | 메서드 전체 | `@Around` |
 
+### 5가지 메서드 정의 (예시 코드)
+
+- 실습 코드: `src/day08/start` — `aspect/LogAspect.java`, `service/CalcService.java`, 테스트 `aspect/LogAspectTest.java`
+
+```java
+@Slf4j
+@Component      // ① 빈 등록 (필수)
+@Aspect         // ② Aspect 선언 (필수)
+public class LogAspect {
+
+    // 공통 Pointcut — service 패키지의 모든 클래스의 모든 메서드
+    @Pointcut("execution(* com.ssafy.start.service.*.*(..))")
+    public void serviceLayer() {}
+
+    // @Before — 대상 메서드 실행 직전
+    @Before("serviceLayer()")
+    public void logBefore(JoinPoint jp) {
+        log.info(">>> {}", jp.getSignature());
+    }
+
+    // @After — 종료 후 (성공·실패 무관, finally)
+    @After("serviceLayer()")
+    public void logAfter(JoinPoint jp) {
+        log.info("<<< {}", jp.getSignature());
+    }
+
+    // @AfterReturning — 정상 종료 후 (반환값 접근)
+    @AfterReturning(pointcut = "serviceLayer()", returning = "ret")
+    public void logReturn(JoinPoint jp, Object ret) {
+        log.info("return = {}", ret);
+    }
+
+    // @AfterThrowing — 예외가 던져졌을 때만
+    @AfterThrowing(pointcut = "serviceLayer()", throwing = "ex")
+    public void logThrow(JoinPoint jp, Exception ex) {
+        log.error("error = {}", ex.getMessage());
+    }
+
+    // @Around — 실행 전후 모두 + 흐름 가로채기 (가장 강력)
+    @Around("serviceLayer()")
+    public Object logAround(ProceedingJoinPoint pjp) throws Throwable {
+        long t = System.currentTimeMillis();
+        Object ret = pjp.proceed();                  // 원본 메서드 호출
+        log.info("took {}ms", System.currentTimeMillis() - t);
+        return ret;
+    }
+}
+```
+
+```java
+@Service
+public class CalcService {                       // Target — 핵심 로직만, 로그 코드 없음
+    public int add(int a, int b) { return a + b; }
+    public int divide(int a, int b) { return a / b; }   // b == 0 → @AfterThrowing 확인용
+}
+```
+
+### 각 Advice별 필수 작성 사항
+
+- **공통 필수**
+  - `build.gradle`: `implementation 'org.springframework.boot:spring-boot-starter-aspectj'`
+  - Aspect 클래스에 **`@Component` + `@Aspect` 둘 다** (빈이 아니면 스프링이 Aspect를 모름)
+  - 어노테이션 값으로 **Pointcut 표현식** (`"execution(...)"` 또는 `"serviceLayer()"`)
+  - `JoinPoint jp` 파라미터는 **선택** — 메서드 이름(`getSignature()`)·인자(`getArgs()`)가 필요할 때만
+
+| Advice | 필수로 맞춰야 할 것 |
+|---|---|
+| `@Before` | 없음 (Pointcut만) |
+| `@After` | 없음 (Pointcut만) |
+| `@AfterReturning` | 반환값을 받으려면 `returning = "ret"` 이름 == 파라미터 이름 `ret` |
+| `@AfterThrowing` | 예외를 받으려면 `throwing = "ex"` 이름 == 파라미터 이름 `ex` |
+| `@Around` | 아래 4가지 **모두** |
+
+- **`@Around` 필수 4가지** — 하나라도 빠지면
+
+| 필수 | 빠뜨리면 |
+|---|---|
+| 파라미터 **`ProceedingJoinPoint`** | `JoinPoint`엔 `proceed()`가 없음 |
+| **`pjp.proceed()`** 호출 | 원본 메서드가 **아예 실행 안 됨** |
+| 반환타입 `Object` + **`return ret;`** | 호출한 쪽이 `null`(기본형이면 0)을 받음 |
+| **`throws Throwable`** | `proceed()`가 Throwable을 던져서 컴파일 에러 |
+
+- 속성이 2개 이상(`pointcut` + `returning`/`throwing`)이면 **`pointcut = "..."`으로 이름을 붙여서** 작성
+- `@AfterThrowing`의 예외 타입(`Exception ex`)과 맞는 예외일 때만 실행됨 (`ArithmeticException`이면 `Exception`으로 받을 수 있음)
+
 ---
 
 ## Spring AOP 시작하기
@@ -210,6 +295,51 @@ public int around(ProceedingJoinPoint pjt) {
 ```
 
 - `@Around`와 위 4개 Advice를 **같이 켜 두면** 같은 문구가 두 번씩 출력됨 → 둘 중 하나만 사용
+
+### 4개 Advice → @Around 하나로 변환 (동작 동일 버전)
+
+- 실습 코드: `src/day08/start` — `aop/MyAspect.java`(4개 Advice), `aop/AroundAspect.java`(변환), `aop/AroundSwallowAspect.java`(위 노트 버전), 테스트 `aop/AopTest.java`
+- 위 노트 코드는 예외를 **삼킴**. 4개 Advice 버전과 **완전히 똑같이** 동작하게 하려면 catch에서 `throw th;`
+
+```java
+@Around("mypt()")
+public Object around(ProceedingJoinPoint pjp) throws Throwable {
+    System.out.println("컴퓨터를 부팅한다.");                        // @Before 자리
+    try {
+        Object result = pjp.proceed();                              // coding() 실행
+        int num = (int) result;
+        System.out.println("Git Push 한다. : " + num + "개의 코드를"); // @AfterReturning 자리
+        return result;                                              // 반환값 그대로 돌려주기
+    } catch (Throwable th) {
+        System.out.println("조퇴를 한다.");                           // @AfterThrowing 자리
+        if (th instanceof OuchException) {
+            ((OuchException) th).handleException();
+        }
+        throw th;                                                   // 예외를 다시 던짐 (원래 동작 유지)
+    } finally {
+        System.out.println("보람찬 하루를 마무리 한다.");               // @After 자리
+    }
+}
+```
+
+| 4개 Advice 버전 | `@Around` 버전 |
+|---|---|
+| `@Before` 메서드 | `proceed()` **전** |
+| `@AfterReturning`의 `returning = "num"` | `proceed()`의 **반환값**을 직접 받음 |
+| `@AfterThrowing`의 `throwing = "th"` | **`catch`**로 직접 받음 |
+| `@After` 메서드 | **`finally`** |
+
+- 예외 처리 방식에 따른 차이
+
+| 버전 | 예외 발생 시 호출한 쪽은 |
+|---|---|
+| 4개 Advice / 위 코드 (`throw th;`) | **예외를 받음** (원래 동작 그대로) |
+| 노트 버전 (`throw` 없음) | 예외 대신 **0을 받음** (예외를 삼킴) |
+
+- 예외를 삼키거나 반환값을 바꾸는 등 **흐름 자체를 바꿀 수 있는 게 `@Around`만의 힘** → "가장 강력"
+- 반대로 `throw`·`return`을 빼먹으면 원래 동작이 **조용히 바뀜** → 주의
+- `MyAspect`(4개 Advice)는 **하나의 Aspect** = Pointcut 1개 + Advice 4개가 합쳐져 `coding()` 하나를 감쌈. `@Around` 하나로도 같은 일을 할 수 있음
+- `@Pointcut` 메서드(`mypt()`)는 직접 호출해도 아무 일 없음 — 본문이 비어 있고, `"mypt()"`는 호출이 아니라 **Pointcut 이름 참조**. 다른 클래스에서 쓸 땐 `"com.ssafy.start.aop.MyAspect.mypt()"`처럼 풀 경로
 
 ---
 

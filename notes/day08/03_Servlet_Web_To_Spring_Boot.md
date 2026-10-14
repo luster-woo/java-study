@@ -6,6 +6,72 @@
 
 ---
 
+## 들어가기 전에: 패키지 구조
+
+> 요청 하나가 처리되는 흐름을 **역할별로 나눈 패키지**. 음식점에 비유하면 이해가 쉬움
+
+### 요청 흐름
+
+```
+브라우저 요청
+   │
+   ▼
+[filter]  ── 입구 경비원 (모든 요청을 먼저 검사)
+   │
+   ▼
+[controller] ── 홀 직원 (주문 받기, 응답 돌려주기)
+   │  dto에 담아서 전달
+   ▼
+[service] ── 주방장 (실제 비즈니스 로직)
+   │
+   ▼
+[dao] ── 창고 담당 (DB에서 꺼내고 넣기)
+   │
+   ▼
+  DB
+```
+
+### 각 패키지의 역할
+
+| 패키지 | 역할 | 비유 | 예시 |
+|---|---|---|---|
+| **controller** | 요청을 받아 service 호출, 응답 반환. 로직은 직접 처리하지 않음 | 홀 직원 | `@Controller`, `@GetMapping("/users")` |
+| **service** | **핵심 비즈니스 로직** (검증, 계산, 여러 dao 조합) | 주방장 | 가입 시 아이디 중복이면 거절 |
+| **dao** (Data Access Object) | **DB 접근만** 담당 (SQL 실행) | 창고 담당 | `insert`, `selectById` |
+| **dto** (Data Transfer Object) | 계층 사이에서 **데이터를 담아 나르는 상자** (필드 + getter/setter) | 주문서, 접시 | `User(id, name, email)` |
+| **model** | dao·dto·service를 묶는 **상위 폴더** | 주방 전체 | `model/dao`, `model/dto` |
+| **exception** | **사용자 정의 예외** 모음 (day06) | 사고 보고서 양식 | `UserNotFoundException` |
+| **filter** | controller **앞에서** 모든 요청·응답을 가로채 공통 처리 | 입구 경비원 | 로그인 확인, 인코딩, 로그 |
+| **listener** | 서버 시작/종료, 세션 생성 같은 **이벤트 발생 시** 자동 실행 | 개점/폐점 알림 | 서버 시작 시 초기 데이터 로딩 |
+| **util** | 어디서나 쓰는 **도구 모음** | 공용 공구함 | 날짜 포맷, 문자열 처리, `DBUtil` |
+
+### model은 왜 따로?
+
+```
+com.ssafy.xxx
+├─ controller
+├─ model
+│   ├─ dao
+│   ├─ dto
+│   └─ service
+├─ exception
+├─ filter
+├─ listener
+└─ util
+```
+
+- MVC의 **M(Model)** 아래에 데이터·로직 계층(dao, dto, service)을 모음. controller = **C**, 화면(html/jsp) = **V**
+
+### 왜 나누나?
+
+- 역할이 나뉘어 있으면 **바꿀 때 한 군데만 수정**
+  - DB 변경 → **dao만**
+  - 화면을 웹 → 앱(REST)으로 → **controller만**
+  - 할인 정책 변경 → **service만**
+- 전체 구조는 시작 클래스 패키지(`com.ssafy.xxx`) **아래**에 있어야 `@ComponentScan`이 빈으로 등록함 ([주요 Annotations](02_주요_Annotations.md) 참고)
+
+---
+
 ## Servlet Web To Spring Boot
 
 ### 출발점: Servlet Web (JDBC 버전)
