@@ -1,4 +1,4 @@
-# Spring Boot
+Spring Boot
 
 > 교재: 15기_자바전공_03_springboot_0507 (전공) — 1. Spring Boot
 
