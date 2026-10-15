@@ -141,5 +141,7 @@ actions.andExpect(MockMvcResultMatchers.handler().methodName("json"))
 > 참고: 교재의 `RequestActions actions = mock.perform(request);`에서 타입 이름은 `ResultActions`가 맞음.
 
 - `@MockitoBean`은 Spring Framework 6.2(Spring Boot 3.4)부터 제공. 이전 버전은 `@MockBean`(3.4부터 deprecated)
+- Spring Boot 4부터 `@WebMvcTest` 패키지가 바뀜 → `org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest` (의존성 `spring-boot-starter-webmvc-test`). 3.x는 `org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest`
+- 실습 코드: `src/day09/FW_05_MVC/src/test/java/com/ssafy/fw_05_mvc/controller/SimpleControllerTest.java`
 - 파일 업로드 요청은 최신 버전에서 `MockMvcRequestBuilders.multipart()` 사용(`fileUpload()`는 deprecated)
 - 자주 쓰는 static import: `MockMvcRequestBuilders.*`, `MockMvcResultMatchers.*`, `org.mockito.Mockito.when`, `org.hamcrest.Matchers.equalTo`
