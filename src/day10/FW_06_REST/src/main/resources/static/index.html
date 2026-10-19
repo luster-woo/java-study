@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>day10 REST 예제</title>
+</head>
+<body>
+  <h2>회원 등록 (fetch + JSON)</h2>
+  <input id="email" placeholder="email">
+  <input id="name" placeholder="name">
+  <input id="password" type="password" placeholder="password">
+  <button id="btnRegist">등록</button>
+  <button id="btnList">목록</button>
+  <pre id="result"></pre>
+
+  <hr>
+  <h2>[04] SOP / CORS / RestClient 프록시</h2>
+  <p>이 화면은 <b>http://localhost:8080</b> 으로 열어야 합니다. (127.0.0.1 은 "다른 출처" 실험용)</p>
+  <button id="btnCorsGlobal">① 127.0.0.1 로 회원 목록 (CorsConfig 전역 설정)</button>
+  <button id="btnCorsAnno">② 127.0.0.1 로 hello-json (@CrossOrigin)</button>
+  <button id="btnCorsBlocked">③ 127.0.0.1 로 hello (CORS 설정 없음 → 차단)</button>
+  <br><br>
+  <button id="btnDirect">④ JS 에서 vworld 직접 호출 (SOP 로 차단)</button>
+  <button id="btnProxy">⑤ 내 서버(프록시)로 시/도 조회</button>
+  <button id="btnRestClient">⑥ RestClient 연습 (키 없이)</button>
+  <pre id="result2"></pre>
+
+  <script>
+    const url = "/api/v1/members";
+    const show = (data) => document.querySelector("#result").textContent = JSON.stringify(data, null, 2);
+
+    // 서버는 @RequestBody → Content-Type: application/json 으로 보내야 함
+    document.querySelector("#btnRegist").addEventListener("click", async () => {
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: document.querySelector("#email").value,
+            name: document.querySelector("#name").value,
+            password: document.querySelector("#password").value,
+          }),
+        });
+        console.log("성공 여부(2XX)?", response.ok, response.status);
+        show(await response.json());
+      } catch (err) {
+        console.error("네트워크 에러, CORS 위배 등", err);
+        show(String(err));
+      }
+    });
+
+    document.querySelector("#btnList").addEventListener("click", async () => {
+      const response = await fetch(url);
+      show(await response.json());
+    });
+
+    // ---------- [04] SOP / CORS / RestClient ----------
+    const show2 = (data) => document.querySelector("#result2").textContent =
+        typeof data === "string" ? data : JSON.stringify(data, null, 2);
+
+    // 요청 결과를 보여 주는 공통 함수: CORS 로 막히면 fetch 가 TypeError 를 던짐
+    const tryFetch = async (url, label) => {
+      try {
+        const response = await fetch(url);
+        const text = await response.text();
+        try { show2({ label, status: response.status, body: JSON.parse(text) }); }
+        catch { show2({ label, status: response.status, body: text }); }
+      } catch (err) {
+        console.error(label, err);
+        show2(`${label}\n→ 실패: ${err}\n(F12 콘솔에서 "blocked by CORS policy" 메시지 확인)`);
+      }
+    };
+
+    document.querySelector("#btnCorsGlobal").addEventListener("click",
+        () => tryFetch("http://127.0.0.1:8080/api/v1/members", "① 전역 CORS 설정으로 허용"));
+    document.querySelector("#btnCorsAnno").addEventListener("click",
+        () => tryFetch("http://127.0.0.1:8080/hello-json", "② @CrossOrigin 으로 허용"));
+    document.querySelector("#btnCorsBlocked").addEventListener("click",
+        () => tryFetch("http://127.0.0.1:8080/hello", "③ CORS 설정 없음"));
+    document.querySelector("#btnDirect").addEventListener("click",
+        () => tryFetch("https://api.vworld.kr/ned/data/admCodeList?format=json&numOfRows=20&key=KEY", "④ vworld 직접 호출"));
+    document.querySelector("#btnProxy").addEventListener("click",
+        () => tryFetch("/api/v1/etc/sidos", "⑤ 같은 출처(내 서버) → 내 서버가 RestClient 로 vworld 호출"));
+    document.querySelector("#btnRestClient").addEventListener("click",
+        () => tryFetch("/api/v1/etc/members-by-restclient", "⑥ RestClient 로 /api/v1/members 호출 (먼저 회원 등록해 보기)"));
+  </script>
+</body>
+</html>
