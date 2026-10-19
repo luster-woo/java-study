@@ -40,6 +40,15 @@
 | D13 | Spring Security·JWT | [01 Spring Security 개요](day13/01_Spring_Security_개요.md)<br>[02 SecurityFilterChain](day13/02_SecurityFilterChain.md)<br>[03 Authentication](day13/03_Authentication.md)<br>[04 Authorization](day13/04_Authorization.md)<br>[05 Authentication 실습](day13/05_Authentication_실습.md)<br>[06 Authorization 실습](day13/06_Authorization_실습.md)<br>[07 JWT 개요](day13/07_JWT_개요.md)<br>[08 JWT 생성](day13/08_JWT_생성.md)<br>[09 Spring Security와의 연동](day13/09_Spring_Security와의_연동.md)<br>[10 refresh token](day13/10_refresh_token.md)<br>[11 SPA의 인증 처리](day13/11_SPA의_인증_처리.md) |
 | D14 | Spring AI (선택) | [01 Spring AI 기본 컨셉](day14/01_Spring_AI_기본_컨셉.md) ˢ<br>[02 Chat Client API](day14/02_Chat_Client_API.md) ˢ<br>[03 Multimodal](day14/03_Multimodal.md) ˢ<br>[04 Multimodal (2)](day14/04_Multimodal_2.md) ˢ<br>[05 Advisor API](day14/05_Advisor_API.md) ˢ<br>[06 Embedding과 VectorStore](day14/06_Embedding과_VectorStore.md) ˢ<br>[07 ConversationMemory](day14/07_ConversationMemory.md) ˢ<br>[08 RAG ETL Pipeline](day14/08_RAG_ETL_Pipeline.md) ˢ<br>[09 RAG Advisor](day14/09_RAG_Advisor.md) ˢ<br>[10 ChatBot](day14/10_ChatBot.md) ˢ |
 
+## 인프런 JPA 강의 노트 (강의 자료·소스코드 기준)
+
+D10~D12의 ᴮ 노트는 공개 자료로 같은 주제를 정리한 것이고, 아래 두 폴더는 **강의 PDF와 강의 소스코드 자체**를 정리한 노트다.
+
+| 폴더 | 강의 | 구성 |
+|---|---|---|
+| [jpa-basic](jpa-basic/README.md) | 자바 ORM 표준 JPA 프로그래밍 - 기본편 | 10개 섹션 (JPA 소개 ~ 객체지향 쿼리 언어) + 2024 시작 프로젝트(`ex1-hello-jpa-start`) |
+| [jpa-practice1](jpa-practice1/README.md) | 실전! 스프링 부트와 JPA 활용1 - 웹 애플리케이션 개발 | 7개 장 (환경설정 ~ 웹 계층) + 완성 소스(`jpashop`) 지도 |
+
 ## 선택 · 시간 남을 때
 
 | 폴더 | 강의별 노트 |
