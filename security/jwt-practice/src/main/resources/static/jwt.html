@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>JWT 실습</title>
+    <style>
+        body { font-family: sans-serif; max-width: 860px; margin: 24px auto; padding: 0 16px; }
+        fieldset { margin-bottom: 12px; }
+        button { margin: 2px; }
+        .token { font-family: monospace; font-size: 12px; word-break: break-all; background: #f3f4f6; padding: 6px; border-radius: 4px; }
+        pre { background: #111827; color: #e5e7eb; padding: 12px; border-radius: 6px; white-space: pre-wrap; word-break: break-all; }
+    </style>
+</head>
+<body>
+<a href="/">home</a>
+<h1>JWT 실습</h1>
+
+<fieldset>
+    <legend>로그인 : POST /api/v1/auth/login (form-urlencoded)</legend>
+    <input id="email" value="user@ssafy.com"> <input id="password" type="password" value="1234">
+    <button id="login">login</button>
+    <small>admin@ssafy.com / 1234 도 가능</small>
+</fieldset>
+
+<fieldset>
+    <legend>API 호출</legend>
+    <button id="etc">/api/v1/etc/hello (토큰 X, permitAll)</button>
+    <button id="list1">/api/v1/members (토큰 없이)</button>
+    <button id="list2">/api/v1/members (토큰 포함)</button>
+    <button id="me">/api/v1/members/me (토큰 포함)</button>
+    <button id="forged">변조 토큰으로 호출</button>
+</fieldset>
+
+<fieldset>
+    <legend>토큰 관리</legend>
+    <button id="refresh">refresh (Refresh-Token 헤더)</button>
+    <button id="logout">logout</button>
+</fieldset>
+
+<h3>access token <small id="accessExp"></small></h3>
+<div class="token" id="accessToken">-</div>
+<h3>refresh token <small id="refreshExp"></small></h3>
+<div class="token" id="refreshTokenView">-</div>
+
+<h3>result</h3>
+<pre id="result">-</pre>
+
+<script>
+    // 실습용 : 토큰을 메모리(변수)에 보관 → 새로고침하면 사라짐
+    let accessToken = null;
+    let refreshToken = null;
+
+    const $ = (sel) => document.querySelector(sel);
+    const show = (status, json) => {
+        $("#result").innerText = `HTTP ${status}\n` + JSON.stringify(json, null, 2);
+    };
+
+    // payload는 Base64URL 인코딩일 뿐 → 누구나 디코딩 가능 (서명 검증은 서버만 함)
+    const decode = (token) => {
+        const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+        const json = decodeURIComponent(atob(base64).split("")
+            .map((c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0")).join(""));
+        return JSON.parse(json);
+    };
+
+    const updateTokens = (json) => {
+        accessToken = json.accessToken || null;
+        refreshToken = json.refreshToken || null;
+        $("#accessToken").innerText = accessToken ? accessToken + "\n\n" + JSON.stringify(decode(accessToken)) : "-";
+        $("#refreshTokenView").innerText = refreshToken ? refreshToken + "\n\n" + JSON.stringify(decode(refreshToken)) : "-";
+    };
+
+    // 만료까지 남은 시간 표시
+    setInterval(() => {
+        const left = (token) => {
+            if (!token) return "";
+            const sec = Math.round(decode(token).exp - Date.now() / 1000);
+            return sec > 0 ? `(만료까지 ${sec}초)` : "(만료됨)";
+        };
+        $("#accessExp").innerText = left(accessToken);
+        $("#refreshExp").innerText = left(refreshToken);
+    }, 1000);
+
+    const call = async (url, options = {}) => {
+        try {
+            const response = await fetch(url, options);
+            const text = await response.text();
+            const json = text ? JSON.parse(text) : {};
+            show(response.status, json);
+            return { ok: response.ok, json };
+        } catch (error) {
+            $("#result").innerText = "Error: " + error;
+            return { ok: false };
+        }
+    };
+
+    // 로그인 : JWTAuthenticationFilter는 요청 파라미터(email, password)를 읽으므로 JSON이 아니라 form 형식
+    $("#login").addEventListener("click", async () => {
+        const { ok, json } = await call("/api/v1/auth/login", {
+            method: "POST",
+            body: new URLSearchParams({ email: $("#email").value, password: $("#password").value }),
+        });
+        if (ok) updateTokens(json);
+    });
+
+    $("#etc").addEventListener("click", () => call("/api/v1/etc/hello"));
+
+    $("#list1").addEventListener("click", () => call("/api/v1/members"));
+
+    // TODO: 07 Authorization header 활용
+    $("#list2").addEventListener("click", () =>
+        call("/api/v1/members", {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        }));
+
+    $("#me").addEventListener("click", () =>
+        call("/api/v1/members/me", {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        }));
+
+    // payload의 role을 ADMIN으로 바꾸고 서명은 그대로 → 서버 검증 실패(TOKEN_ERROR)
+    $("#forged").addEventListener("click", () => {
+        if (!accessToken) return alert("먼저 로그인하세요");
+        const [h, , s] = accessToken.split(".");
+        const payload = { ...decode(accessToken), role: "ADMIN" };
+        const p = btoa(unescape(encodeURIComponent(JSON.stringify(payload))))
+            .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+        call("/api/v1/members", { headers: { Authorization: `Bearer ${h}.${p}.${s}` } });
+    });
+
+    // TODO: 10 토큰 갱신 : Authorization 헤더 없이 Refresh-Token 헤더만
+    $("#refresh").addEventListener("click", async () => {
+        const { ok, json } = await call("/api/v1/auth/refresh", {
+            method: "POST",
+            headers: { "Refresh-Token": refreshToken ?? "" },
+        });
+        if (ok) updateTokens(json);   // 받은 새 토큰들로 교체
+    });
+
+    // TODO: 11 logout : 서버의 refresh token 삭제 후 클라이언트 토큰도 삭제
+    $("#logout").addEventListener("click", async () => {
+        await call("/api/v1/auth/logout", {
+            method: "POST",
+            headers: { "Refresh-Token": refreshToken ?? "" },
+        });
+        updateTokens({ accessToken: null, refreshToken: null });
+    });
+</script>
+</body>
+</html>

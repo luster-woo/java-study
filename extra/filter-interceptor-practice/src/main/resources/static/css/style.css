@@ -1,0 +1,7 @@
+body { font-family: sans-serif; max-width: 640px; margin: 40px auto; padding: 0 16px; line-height: 1.6; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; }
+form { margin: 0; }
+label { display: block; margin-bottom: 8px; }
+.error { color: #c0392b; }
+.hint { color: #777; font-size: 0.9em; }

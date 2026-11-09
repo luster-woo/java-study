@@ -1,0 +1,31 @@
+{
+  "store": {
+    "name": "SSAFY 북카페 (실습용 예시 데이터)",
+    "books": [
+      {
+        "title": "자바의 기초",
+        "author": "김자바",
+        "price": 25000,
+        "description": "변수와 제어문부터 객체지향, 컬렉션, 람다와 스트림까지 자바 문법을 처음부터 정리한 입문서."
+      },
+      {
+        "title": "스프링 부트 실전",
+        "author": "이스프링",
+        "price": 32000,
+        "description": "DI와 AOP, Spring MVC, 필터와 인터셉터, 트랜잭션까지 스프링 부트 웹 애플리케이션 개발 흐름을 다룬다."
+      },
+      {
+        "title": "JPA 완전 정복",
+        "author": "박영속",
+        "price": 30000,
+        "description": "영속성 컨텍스트, 연관관계 매핑, 지연 로딩과 N+1 문제, Spring Data JPA 활용법을 설명한다."
+      },
+      {
+        "title": "생성형 AI 애플리케이션",
+        "author": "최벡터",
+        "price": 35000,
+        "description": "임베딩과 벡터 데이터베이스, RAG 파이프라인, 대화 기억을 이용해 LLM 챗봇을 만드는 방법을 소개한다."
+      }
+    ]
+  }
+}

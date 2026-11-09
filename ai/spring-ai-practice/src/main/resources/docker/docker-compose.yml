@@ -1,0 +1,31 @@
+# 실행: 이 폴더에서  docker compose up -d   /  종료: docker compose down
+services:
+  # VectorStore (TODO 08~13)
+  redis-stack:
+    image: redis/redis-stack:latest
+    container_name: redis-vectorstore
+    ports:
+      - "6379:6379"   # Redis 기본 포트
+      - "8001:8001"   # Redis Insight (GUI): http://localhost:8001
+    volumes:
+      - redis_data:/data   # 데이터를 로컬에 보관 → 컨테이너 재시작 후에도 유지
+    restart: always
+
+  # (교재 외 추가) JDBC ChatMemoryRepository용 MySQL (TODO 10)
+  # 로컬에 MySQL이 이미 3306에서 돌고 있으면 이 서비스는 지우고,
+  # application.properties의 username/password만 내 MySQL 계정으로 바꾸면 됨
+  mysql:
+    image: mysql:8.4
+    container_name: ai-chatmemory-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ssafy
+      MYSQL_DATABASE: ssafylive
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: always
+
+volumes:
+  redis_data:
+  mysql_data:

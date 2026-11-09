@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SSAFY ChatBot</title>
+  <style>
+    body { font-family: sans-serif; max-width: 720px; margin: 24px auto; padding: 0 16px; }
+    #log { border: 1px solid #ccc; border-radius: 8px; height: 420px; overflow-y: auto; padding: 12px; background: #fafafa; }
+    .msg { margin: 8px 0; padding: 8px 12px; border-radius: 8px; white-space: pre-wrap; max-width: 85%; }
+    .me { background: #dbeafe; margin-left: auto; }
+    .bot { background: #fff; border: 1px solid #e5e7eb; }
+    .err { background: #fee2e2; }
+    .row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
+    #message { flex: 1; min-width: 200px; padding: 8px; }
+    small { color: #666; }
+  </style>
+</head>
+<body>
+<h1>SSAFY ChatBot</h1>
+
+<div class="row">
+  <label>userId <input id="userId" value="ssafy_user" size="12"></label>
+  <label><input type="checkbox" id="useRag"> RAG 사용</label>
+  <button id="etl">RAG 문서 적재</button>
+</div>
+
+<div id="log"></div>
+
+<div class="row">
+  <input id="message" placeholder="메시지 입력 (Enter)">
+  <input type="file" id="file" accept="image/*">
+  <button id="send">보내기</button>
+</div>
+<p><small>
+  이미지 첨부 → 멀티모달 (GMS는 100KB 미만만) · RAG 체크 → 문서 검색 + 대화 기억 · 그 밖 → 대화 기억(VectorStore)<br>
+  RAG 예: "임의 결석을 4회 했을 때 수강생의 운명은?" / "JPA 책 소개해줘"
+</small></p>
+
+<script>
+  const log = document.getElementById('log');
+
+  function add(text, cls) {
+    const div = document.createElement('div');
+    div.className = 'msg ' + cls;
+    div.textContent = text;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+    return div;
+  }
+
+  async function send() {
+    const message = document.getElementById('message').value.trim();
+    const file = document.getElementById('file').files[0];
+    if (!message && !file) return;
+
+    const form = new FormData();
+    form.append('message', message);
+    form.append('userId', document.getElementById('userId').value);
+    form.append('useRag', document.getElementById('useRag').checked);
+    if (file) form.append('file', file);
+
+    add((file ? '[이미지: ' + file.name + '] ' : '') + message, 'me');
+    document.getElementById('message').value = '';
+    document.getElementById('file').value = '';
+    const pending = add('...', 'bot');
+
+    try {
+      const res = await fetch('/chat', { method: 'POST', body: form });
+      pending.textContent = await res.text();
+      if (!res.ok) pending.className = 'msg err';
+    } catch (e) {
+      pending.textContent = '요청 실패: ' + e;
+      pending.className = 'msg err';
+    }
+  }
+
+  document.getElementById('send').onclick = send;
+  document.getElementById('message').addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+  document.getElementById('etl').onclick = async () => {
+    const res = await fetch('/etl', { method: 'POST' });
+    add('[ETL] ' + await res.text(), res.ok ? 'bot' : 'err');
+  };
+</script>
+</body>
+</html>
